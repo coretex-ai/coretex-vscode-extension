@@ -3,7 +3,7 @@
 	"displayName": "coretex",
 	"publisher": "CoretexLLC",
 	"description": "",
-	"version": "0.0.2",
+	"version": "0.0.8",
 	"icon": "images/coretex-icon.png",
 	"repository": {
 		"type": "git",
@@ -18,33 +18,33 @@
 	"activationEvents": [],
 	"main": "./dist/extension.js",
 	"contributes": {
-		"configuration":[
-            {
-                "title": "Coretex Configuration",
+		"configuration": [
+			{
+				"title": "Coretex Configuration",
 				"properties": {
 					"OrganizationID": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Your Organization ID"
-                    },
+						"type": "string",
+						"default": "",
+						"description": "Your Organization ID"
+					},
 					"Email": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Your Coretex account email"
-                    },
+						"type": "string",
+						"default": "",
+						"description": "Your Coretex account email"
+					},
 					"NodeName": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Your Node Name"
-                    },
+						"type": "string",
+						"default": "",
+						"description": "Your Node Name"
+					},
 					"StoragePath": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Your Node Storage Path"
-                    }
+						"type": "string",
+						"default": "",
+						"description": "Your Node Storage Path"
+					}
 				}
-            }
-        ],
+			}
+		],
 		"commands": [
 			{
 				"command": "coretex.checkNodeStatus",
