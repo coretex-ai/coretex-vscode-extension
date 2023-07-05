@@ -1,0 +1,47 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"required": [
+		"id",
+		"name",
+		"description",
+		"project_task",
+		"is_active",
+		"version",
+		"parameters"
+	],
+	"properties": {
+		"id": { "type": "string" },
+		"name": { "type": "string" },
+		"description": { "type": "string" },
+		"project_task": { "type": "integer", "enum": [1, 2, 3, 8] },
+		"is_active": { "type": "boolean" },
+		"version": { "type": "integer" },
+		"parameters": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": ["name", "description", "value", "data_type", "required"],
+				"properties": {
+					"name": { "type": "string" },
+					"description": { "type": "string" },
+					"value": {},
+					"data_type": {
+						"type": "string",
+						"enum": [
+							"int",
+							"float",
+							"string",
+							"bool",
+							"list[int]",
+							"list[float]",
+							"list[str]"
+						]
+					},
+					"required": { "type": "boolean" },
+					"optimized": { "type": "boolean" }
+				}
+			}
+		}
+	}
+}

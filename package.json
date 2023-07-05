@@ -1,0 +1,188 @@
+{
+	"name": "coretex",
+	"displayName": "coretex",
+	"publisher": "CoretexLLC",
+	"description": "",
+	"version": "0.0.2",
+	"icon": "images/coretex-icon.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/coretex-ai/vscode-extension"
+	},
+	"engines": {
+		"vscode": "^1.78.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"configuration":[
+            {
+                "title": "Coretex Configuration",
+				"properties": {
+					"OrganizationID": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Your Organization ID"
+                    },
+					"Email": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Your Coretex account email"
+                    },
+					"NodeName": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Your Node Name"
+                    },
+					"StoragePath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Your Node Storage Path"
+                    }
+				}
+            }
+        ],
+		"commands": [
+			{
+				"command": "coretex.checkNodeStatus",
+				"title": "Coretex: Check node status"
+			},
+			{
+				"command": "coretex.startNode",
+				"title": "Coretex: Start node"
+			},
+			{
+				"command": "coretex.stopNode",
+				"title": "Coretex: Stop node"
+			},
+			{
+				"command": "coretex.configureNode",
+				"title": "Coretex: Configure node"
+			},
+			{
+				"command": "coretex.downloadNodeImage",
+				"title": "Coretex: Download node image"
+			},
+			{
+				"command": "coretex.installCoretexCLI",
+				"title": "Coretex: Install Coretex CLI"
+			},
+			{
+				"command": "coretex.checkCoretexCLIInstalled",
+				"title": "Coretex: Check if Coretex CLI is installed"
+			},
+			{
+				"command": "coretex.uninstallCoretexCLI",
+				"title": "Coretex: Uninstall Coretex CLI"
+			},
+			{
+				"command": "coretex.convertToCoretexProject",
+				"title": "Coretex: Convert to Coretex project"
+			},
+			{
+				"command": "coretex.openDocumentation",
+				"title": "Coretex: Go to Coretex documentation"
+			},
+			{
+				"command": "coretex.openDocumentationPythonLib",
+				"title": "Coretex: Go to Python library documentation"
+			},
+			{
+				"command": "coretex.addParameter",
+				"title": "Coretex: Add project parameter"
+			},
+			{
+				"command": "coretex.showNodeLogs",
+				"title": "Coretex: Show node logs"
+			},
+			{
+				"command": "coretex.configureUser",
+				"title": "Coretex: Log in"
+			}
+		],
+		"views": {
+			"coretexPanel": [
+				{
+					"type": "webview",
+					"id": "coretex.user",
+					"name": "USER",
+					"icon": "images/coretex-icon.png"
+				},
+				{
+					"type": "webview",
+					"id": "coretex.cli",
+					"name": "CLI",
+					"icon": "images/coretex-icon.png"
+				},
+				{
+					"type": "webview",
+					"id": "coretex.node",
+					"name": "Node",
+					"icon": "images/coretex-icon.png"
+				},
+				{
+					"type": "webview",
+					"id": "coretex.project",
+					"name": "Project",
+					"icon": "images/coretex-icon.png"
+				},
+				{
+					"type": "webview",
+					"id": "coretex.help",
+					"name": "Help",
+					"icon": "images/coretex-icon.png"
+				}
+			]
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "coretexPanel",
+					"title": "Coretex",
+					"icon": "images/coretex-icon.png"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run package",
+		"compile": "webpack",
+		"watch": "webpack --watch",
+		"package": "webpack --mode production --devtool hidden-source-map",
+		"compile-tests": "tsc -p . --outDir out",
+		"watch-tests": "tsc -p . -w --outDir out",
+		"pretest": "npm run compile-tests && npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^11.0.1",
+		"@types/glob": "^8.1.0",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "16.x",
+		"@types/tmp": "^0.2.3",
+		"@types/vscode": "^1.78.0",
+		"@typescript-eslint/eslint-plugin": "^5.59.1",
+		"@typescript-eslint/parser": "^5.59.1",
+		"@vscode/test-electron": "^2.3.0",
+		"eslint": "^8.39.0",
+		"glob": "^8.1.0",
+		"mocha": "^10.2.0",
+		"ts-loader": "^9.4.2",
+		"typescript": "^5.0.4",
+		"webpack": "^5.81.0",
+		"webpack-cli": "^5.0.2"
+	},
+	"dependencies": {
+		"@vscode/webview-ui-toolkit": "^1.2.2",
+		"ajv": "^6.12.6",
+		"child_process": "^1.0.2",
+		"fs-extra": "^11.1.1",
+		"jsonc-parser": "^3.2.0",
+		"tmp": "^0.2.1",
+		"webview-ui-toolkit": "^0.0.0"
+	}
+}
