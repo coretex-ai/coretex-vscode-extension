@@ -71,7 +71,15 @@ jobs:
   deploy-marketplace:
     needs: prod-merge
     if: ${{ (github.event.inputs.destination_branch == 'main') && success() }}
-    run: |
-      npm install -g vsce
-      npm install
-      vsce publish -p ${{ secrets.VSCE_TOKEN }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install VSCE tool
+        run: |
+          npm install -g vsce
+      - name: Install dependencies
+        run: |
+          npm install
+      - name: Publish to Azure Marketplace
+        run: |
+          vsce publish -p ${{ secrets.VSCE_TOKEN }}
