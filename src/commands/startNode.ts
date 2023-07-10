@@ -84,8 +84,9 @@ function startNode() {
 								`Error starting Coretex node: ${startStderr}`
 							);
 						} else {
+							const exitCodeOffset = 10
 							const indexOfExitCode = startStdout.indexOf('Exit Code:')
-							const exitCode = startStdout.substring(indexOfExitCode + 11, indexOfExitCode + 13)
+							const exitCode = startStdout.substring(indexOfExitCode + (exitCodeOffset + 1), indexOfExitCode + (exitCodeOffset + 3)) // two digit exit code
 							if (!exitCode.startsWith('0')) {
 								vscode.window.showInformationMessage(
 									'Error starting Coretex node: Try re-configuring.'

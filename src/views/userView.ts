@@ -40,6 +40,14 @@ export class UserView implements vscode.WebviewViewProvider {
 		};
 
 		this.updateView();
+
+		this._view.onDidChangeVisibility(async event => {
+			this.updateView();
+		});
+
+		this._view.webview.onDidReceiveMessage(data => {
+			this.runCommand(data);
+		});
 	}
 
 	private updateView(): void {
@@ -54,23 +62,35 @@ export class UserView implements vscode.WebviewViewProvider {
 			dirPath = configDirArray[0]
 		}
 
-        const configuration = JSON.parse(fs.readFileSync(dirPath + '/config.json', { encoding: 'utf-8' }))
+		const configFilePath = dirPath + '/config.json'
 
-        if (configuration.organizationID) {
-            vscode.workspace.getConfiguration().update(this.organizationConf, configuration.organizationID, vscode.ConfigurationTarget.Global);
-        }
-
-		this._view.webview.html = this.getWebviewContent(this._view.webview, configuration.username ? configuration.username : '');
-
-        this._view.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'login':
-					{
-						vscode.commands.executeCommand('coretex.configureUser');
-						break;
-					}
-			}
+		// Wathc for config change
+		var watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(vscode.Uri.file(`${dirPath}`), '*.json'));
+		watcher.onDidChange(() => {
+			this.updateView();
 		});
+
+		if (fs.existsSync(configFilePath)) {
+			const configuration = JSON.parse(fs.readFileSync(configFilePath, { encoding: 'utf-8' }))
+
+			if (configuration.organizationID) {
+				vscode.workspace.getConfiguration().update(this.organizationConf, configuration.organizationID, vscode.ConfigurationTarget.Global);
+			}
+
+			this._view.webview.html = this.getWebviewContent(this._view.webview, configuration.username ? configuration.username : '');
+		} else {
+			this._view.webview.html = this.getWebviewContent(this._view.webview, '');
+		}
+	}
+
+	private runCommand(data: any) {
+		switch (data.type) {
+			case 'login':
+				{
+					vscode.commands.executeCommand('coretex.configureUser');
+					break;
+				}
+		}
 	}
 
 	private getWebviewContent(webview: vscode.Webview, username: string): string {
@@ -95,8 +115,10 @@ export class UserView implements vscode.WebviewViewProvider {
 			</head>
 			<body>
                 <p class="subtitle">${username == '' ? 'Not logged in': username}</p>
-                <p class="title">Organization ID: </p>
-                <p class="subtitle">${organizationID == '' ? '[Login to fetch ID]' : organizationID}</p>
+				<div class="column">
+                	<text class="info">Organization ID: </text>
+                	<text class="subtitle">${organizationID == '' ? '[Refresh after login]' : organizationID}</text>
+				</div>
 			    <button class="login-action button">Log In</button>
                 <script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>

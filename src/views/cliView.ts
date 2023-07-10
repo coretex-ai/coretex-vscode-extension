@@ -42,6 +42,10 @@ export class CLIView implements vscode.WebviewViewProvider {
 		this._view.onDidChangeVisibility(async event => {
 			this.updateView();
 		});
+
+		this._view.webview.onDidReceiveMessage(data => {
+			this.runCommand(data);
+		});
 	}
 
 	private updateView(): void {
@@ -57,16 +61,16 @@ export class CLIView implements vscode.WebviewViewProvider {
 		}
 
 		this._view.webview.html = this.getWebviewContent(this._view.webview, cliVersion, isNewVersionAvailable);
+	}
 
-		this._view.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'update':
-					{
-						vscode.commands.executeCommand('coretex.installCoretexCLI');
-						break;
-					}
-			}
-		});
+	private runCommand(data: any) {
+		switch (data.type) {
+			case 'update':
+				{
+					vscode.commands.executeCommand('coretex.installCoretexCLI');
+					break;
+				}
+		}
 	}
 
 	private isCoretexCLIInstalled(): string {

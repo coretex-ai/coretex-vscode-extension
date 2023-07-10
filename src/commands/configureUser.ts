@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { ExecException, exec } from 'child_process';
 import * as vscode from 'vscode';
 
 interface IUserConfigData {
@@ -82,16 +83,53 @@ const configureUserCommand = vscode.commands.registerCommand(
 			storagePath
 		};
 
-		await configCoretexUser(userConfigData)
-
-		vscode.workspace.getConfiguration().update(emailConf, email, vscode.ConfigurationTarget.Global);
-		vscode.workspace.getConfiguration().update(storagePathConf, storagePath, vscode.ConfigurationTarget.Global);
-
-		vscode.window.showInformationMessage(
-			'Coretex user logged in successfully.'
-		);
+		await login(userConfigData, storagePathConf, emailConf, storagePath)
 	}
 );
+
+async function login(params: IUserConfigData, storagePathConf: string, emailConf: string, storagePath: string): Promise<void>  {
+	const configUserBaseCommand = getConfigUserCommand();
+
+	const email = `--email=${params.email}`
+	const password = `--password=${params.password}`
+	const storage = `--storage=${params.storagePath}`
+
+	const configUserCommand = `${configUserBaseCommand} ${email} ${password} ${storage}`
+
+	exec(
+		`${configUserCommand}`,
+		(
+			loginError: ExecException | null,
+			loginStdout: string,
+			loginStderr: string
+		) => {
+			if (loginError) {
+				vscode.window.showErrorMessage(
+					`Failed to login: ${loginError.message}`
+				);
+			} else if (loginStderr && !loginStdout) {
+				// Handle the specific case where only stderr is present and stdout is empty
+				vscode.window.showErrorMessage(
+					`Error logging in: ${loginStderr}`
+				);
+			} else {
+				// Handle network response return format
+				if (loginStdout.includes('Request failed')) {
+					vscode.window.showInformationMessage(
+						'Login failed, please check your credentials.'
+					);
+				} else {
+					vscode.workspace.getConfiguration().update(emailConf, params.email, vscode.ConfigurationTarget.Global);
+					vscode.workspace.getConfiguration().update(storagePathConf, storagePath, vscode.ConfigurationTarget.Global);
+
+					vscode.window.showInformationMessage(
+						'Coretex user logged in successfully.'
+					);
+				}
+			}
+		}
+	);
+}
 
 async function configCoretexUser(params: IUserConfigData): Promise<void> {
 	// Execute the config user command in the integrated terminal
