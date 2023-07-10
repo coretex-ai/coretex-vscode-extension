@@ -90,7 +90,7 @@ export class ProjectView implements vscode.WebviewViewProvider {
 				<title>Project</title>
 			</head>
 			<body>
-			<p class="title">Project path:</p>
+			<p class="title">Storage path:</p>
 			<p class="subtitle">${text}</p>
 			</body>
 			</html>

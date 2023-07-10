@@ -18,6 +18,7 @@
 import * as vscode from 'vscode';
 import * as child_process from 'child_process';
 import { getNonce } from '../utilities/getNonce';
+import * as fs from 'fs';
 
 export enum NodeStatus {
 	inactive = 'Inactive',
@@ -30,7 +31,8 @@ export class NodeView implements vscode.WebviewViewProvider {
 	viewId = 'coretex.node';
 	private _view?: vscode.WebviewView;
 
-	statusRetryMessage = 'Retrying...'
+	private statusRetryMessage = 'Retrying...'
+	private statusErrorMessage = 'There was an error. Check your arguments or try authenticating with config command.'
 
 	constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -51,17 +53,28 @@ export class NodeView implements vscode.WebviewViewProvider {
 		this._view.onDidChangeVisibility(async event => {
 			this.updateView();
 		});
-
-		let dirPath = this.getCLIConfigDir()
-		const configDirArray = dirPath.split('\n')
-
-		if (configDirArray.length > 1) {
-			dirPath = configDirArray[0]
-		}
 		
-		var watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(vscode.Uri.file(`${dirPath}`), '*.status'));
+		const storage = this.checkStoragePath();
+
+		// parse checkStoragePath() return format
+		let storagePath = storage.substring(storage.indexOf(':') + 1, storage.length);
+		const storageDirArray = storagePath.split('\n');
+
+		if (storageDirArray.length > 1) {
+			storagePath = storageDirArray[0];
+		}
+
+		const nodeFile = storagePath.endsWith('/') ? 'node' : '/node'
+		const storageNodePath = storagePath.replace(' ', '') + nodeFile
+
+		// Watch for status changes
+		var watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(vscode.Uri.file(`${storageNodePath}`), '*.status'));
 		watcher.onDidChange(() => {
 			this.updateView();
+		});
+
+		this._view.webview.onDidReceiveMessage(data => {
+			this.runCommand(data);
 		});
 	}
 
@@ -71,32 +84,78 @@ export class NodeView implements vscode.WebviewViewProvider {
 		}
 
 		const nodeVersion = this.checkNodeVersion();
-		const text = nodeVersion == '' ? 'Node not started.' : nodeVersion.substring(nodeVersion.indexOf(':') + 1, nodeVersion.length);
+		const text = nodeVersion == '' ? 'Node not started.' : nodeVersion.substring(nodeVersion.indexOf(':') + 1, nodeVersion.length); // parse version return format
+		let nodeStatus = this.checkNodeStatus();
 
-		const nodeStatus = this.checkNodeStatus();
+		// Handle response error format
+		if (nodeStatus.includes(this.statusErrorMessage)) {
+			nodeStatus = 'Inactive'
+		}
 
 		this._view.webview.html = this.getWebviewContent(this._view.webview, text, nodeStatus);
+	}
 
-		this._view.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'configure':
-					{
+	private runCommand(data: any) {
+		switch (data.type) {
+			case 'configure':
+				{
+					vscode.commands.executeCommand('workbench.action.openSettings', 'Coretex');
+					vscode.commands.executeCommand('coretex.configureNode');
+					break;
+				}
+			case 'start':
+				{
+					const configPath = this.getConfigDirString();
+					const configJson = 'config.json';
+					const dockerScript = 'docker.sh';
+					const dockerYaml = 'docker-compose.yml';
+
+					if (fs.existsSync(configPath + `/${configJson}`) && fs.existsSync(configPath + `/${dockerScript}`) && fs.existsSync(configPath + `/${dockerYaml}`)) {
+						this.startNode(this.checkNodeStatus());
+					} else {
+						vscode.window.showInformationMessage("Coretex Node: Config not complete. Configuring...");
 						vscode.commands.executeCommand('coretex.configureNode');
-						break;
 					}
-				case 'start':
-					{
-						if (nodeStatus.includes(NodeStatus.active)) {
-							vscode.commands.executeCommand('coretex.stopNode');
-						} else if (nodeStatus.includes(NodeStatus.busy)) {
-							vscode.window.showInformationMessage("Coretex Node Busy: Stop Runs first.");
-						} else {
-							vscode.commands.executeCommand('coretex.startNode');
-						}
-						break;
-					}
+					break;
+				}
+		}
+	}
+
+	private startNode(nodeStatus: string) {
+		if (nodeStatus.includes(NodeStatus.active)) {
+			vscode.commands.executeCommand('coretex.stopNode');
+		} else if (nodeStatus.includes(NodeStatus.busy)) {
+			vscode.window.showInformationMessage("Coretex Node Busy: Stop Runs first.");
+		} else {
+			vscode.commands.executeCommand('coretex.startNode');
+		}
+	}
+
+	private checkStoragePath(): string {
+		const platform = process.platform;
+		const command = 'coretex storage'
+		if (platform === 'darwin' || platform === 'linux') {
+			try {
+				const version = child_process.execSync(command);
+				return version.toString();
+			} catch (error) {
+				return '';
 			}
-		});
+		} else if (platform === 'win32') {
+			try {
+				const version = child_process.execSync(command);
+				return version.toString();
+			} catch (error) {
+				try {
+					const version = child_process.execSync('coretex.exe storage');
+					return version.toString();
+				} catch (error) {
+					return '';
+				}
+			}
+		}
+
+		return '';
 	}
 
 	private checkNodeVersion(): string {
@@ -195,6 +254,19 @@ export class NodeView implements vscode.WebviewViewProvider {
 		return '';
 	}
 
+	private getConfigDirString(): string {
+		let dirPath = this.getCLIConfigDir();
+
+		// parse getCLIConfigDir() return format
+		const configDirArray = dirPath.split('\n');
+
+		if (configDirArray.length > 1) {
+			dirPath = configDirArray[0];
+		}
+
+		return dirPath
+	}
+
 	private getWebviewContent(webview: vscode.Webview, text: string, status: string): string {
 		const viewStyle = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'views.css'));
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'nodeViewScripts.js'));
@@ -220,8 +292,10 @@ export class NodeView implements vscode.WebviewViewProvider {
 			</head>
 			<body>
 				<p class="title">Status: ${status}</p>
-				<button class="configure-action button">Configure</button>
-				<button class="start-action button">${actionMessage}</button>
+				<div class="content">
+					<button class="start-action button">${actionMessage}</button>
+					<span class="configure-action">&#9881;</span>
+				</div>
 				<p class="title">Node version:</p>
 				<p class="subtitle">${text}</p>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
