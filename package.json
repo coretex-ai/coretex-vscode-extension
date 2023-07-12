@@ -107,14 +107,14 @@
 			"coretexPanel": [
 				{
 					"type": "webview",
-					"id": "coretex.user",
-					"name": "USER",
+					"id": "coretex.cli",
+					"name": "CLI",
 					"icon": "images/coretex-icon.png"
 				},
 				{
 					"type": "webview",
-					"id": "coretex.cli",
-					"name": "CLI",
+					"id": "coretex.user",
+					"name": "USER",
 					"icon": "images/coretex-icon.png"
 				},
 				{

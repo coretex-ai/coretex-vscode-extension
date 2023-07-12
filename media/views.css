@@ -31,7 +31,8 @@ body {
 }
 
 .update-action {
-    display: none;
+    background-color: #337ab7;
+    opacity: 0.5;
 }
 
 .update-action-new {
@@ -62,4 +63,8 @@ body {
     display:flex;
     flex-direction: column;
     padding-bottom: 5px;
+}
+
+.hidden {
+    display: none;
 }

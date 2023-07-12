@@ -93,6 +93,33 @@ export class UserView implements vscode.WebviewViewProvider {
 		}
 	}
 
+	private isCoretexCLIDetected(): boolean {
+		const platform = process.platform;
+		const command = 'coretex --version';
+		if (platform === 'darwin' || platform === 'linux') {
+			try {
+				child_process.execSync(command);
+				return true;
+			} catch (error) {
+				return false;
+			}
+		} else if (platform === 'win32') {
+			try {
+				child_process.execSync(command);
+				return true;
+			} catch (error) {
+				try {
+					child_process.execSync('coretex.exe --version');
+					return true;
+				} catch (error) {
+					return false;
+				}
+			}
+		}
+	
+		return false;
+	}
+
 	private getWebviewContent(webview: vscode.Webview, username: string): string {
 		const viewStyle = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'views.css'));
         const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'userViewScripts.js'));
@@ -102,6 +129,9 @@ export class UserView implements vscode.WebviewViewProvider {
         
         const conf = vscode.workspace.getConfiguration();
 		const organizationID = conf.get<{}>(this.organizationConf);
+
+		const loginStyle = this.isCoretexCLIDetected() ? 'login-action button' : 'hidden'
+		const infoStyle = !this.isCoretexCLIDetected() ? 'info' : 'hidden'
 
 		return `
 			<!DOCTYPE html>
@@ -119,7 +149,8 @@ export class UserView implements vscode.WebviewViewProvider {
                 	<text class="info">Organization ID: </text>
                 	<text class="subtitle">${organizationID == '' ? '[Refresh after login]' : organizationID}</text>
 				</div>
-			    <button class="login-action button">Log In</button>
+			    <button class="${loginStyle}">Log In</button>
+				<text class="${infoStyle}">Make sure you have latest CLI version installed.</text>
                 <script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>
