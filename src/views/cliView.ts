@@ -109,7 +109,8 @@ export class CLIView implements vscode.WebviewViewProvider {
 				const version = child_process.execSync(command);
 				return version.toString().includes(newVersionMessage);
 			} catch (error) {
-				return false;
+				// CLI Command does not exist
+				return true;
 			}
 		} else if (platform === 'win32') {
 			try {
@@ -125,7 +126,7 @@ export class CLIView implements vscode.WebviewViewProvider {
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	private getWebviewContent(webview: vscode.Webview, cliVersion: string, isNewVersionAvailable: boolean): string {
