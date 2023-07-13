@@ -3,7 +3,7 @@
 	"displayName": "coretex",
 	"publisher": "CoretexLLC",
 	"description": "",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"icon": "images/coretex-icon.png",
 	"repository": {
 		"type": "git",
