@@ -46,6 +46,7 @@ const configureUserCommand = vscode.commands.registerCommand(
 
         const password = await vscode.window.showInputBox({
 			prompt: 'Enter your Coretex password',
+			password: true,
 			placeHolder: 'Password',
 			validateInput: (value) => (value ? null : 'Password is required'),
 			value: '', // Default value
