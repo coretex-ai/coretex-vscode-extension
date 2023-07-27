@@ -41,6 +41,16 @@
 						"type": "string",
 						"default": "",
 						"description": "Your Node Storage Path"
+					},
+					"Space": {
+						"type": "integer",
+						"default": 0,
+						"description": "Your Current Coretex Space"
+					},
+					"NodeID": {
+						"type": "integer",
+						"default": 0,
+						"description": "Your Current Coretex Node"
 					}
 				}
 			}
@@ -101,6 +111,10 @@
 			{
 				"command": "coretex.configureUser",
 				"title": "Coretex: Log in"
+			},
+			{
+				"command": "coretex.listNodes",
+				"title": "Coretex: List Nodes"
 			}
 		],
 		"views": {

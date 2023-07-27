@@ -14,10 +14,11 @@ import openDocumentationPythonLibCommand from './commands/openDocumentationPytho
 import addParameterCommand from './commands/addParameter';
 import showNodeLogsCommand from './commands/showLogs';
 import configureUserCommand from './commands/configureUser';
+import listNodesCommand from './commands/listNodes';
 
 import {CLIView} from './views/cliView';
 import {NodeView} from './views/nodeView';
-import {ProjectView} from './views/projectView.ts';
+import {ProjectView} from './views/projectView';
 import { HelpView } from './views/helpView';
 import { UserView } from './views/userView';
 
@@ -38,6 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(addParameterCommand);
 	context.subscriptions.push(showNodeLogsCommand);
 	context.subscriptions.push(configureUserCommand);
+	context.subscriptions.push(listNodesCommand);
 
 	// VIEWS
 
