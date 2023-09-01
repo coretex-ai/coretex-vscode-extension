@@ -21,7 +21,6 @@ interface INodeConfigData {
 	nodeName: string,
 	storagePath: string
 	image: string,
-	organizationID: string,
 	memLimit: string,
 	memSwapLimit: string,
 	shmSize: string,
@@ -32,7 +31,6 @@ const configureNodeCommand = vscode.commands.registerCommand(
 	async () => {
 		const nodeNameConf = 'NodeName'
 		const storagePathConf = 'StoragePath'
-		const organizationConf = 'OrganizationID'
 
 		const conf = vscode.workspace.getConfiguration();
 
@@ -67,23 +65,6 @@ const configureNodeCommand = vscode.commands.registerCommand(
 		if (!storagePath) {
 			vscode.window.showErrorMessage(
 				'Storage path is required to configure the Coretex node.'
-			);
-			return;
-		}
-
-		const orgID = conf.get<{}>(organizationConf)
-		const orgDefaultValue = orgID ? orgID.toString() : ''
-
-		const organizationID = await vscode.window.showInputBox({
-			prompt: 'Enter the organization ID',
-			placeHolder: 'Organization ID',
-			value: orgDefaultValue, // default value
-			validateInput: (value) => (value ? null : 'Organization ID is required'),
-		});
-
-		if (!organizationID) {
-			vscode.window.showErrorMessage(
-				'Organization ID is required to configure the Coretex node.'
 			);
 			return;
 		}
@@ -144,7 +125,6 @@ const configureNodeCommand = vscode.commands.registerCommand(
 			nodeName,
 			storagePath,
 			image: image,
-			organizationID,
 			memLimit,
 			memSwapLimit,
 			shmSize,
@@ -166,14 +146,13 @@ async function configCoretexNode(params: INodeConfigData): Promise<void> {
 	const configNodeBaseCommand = getConfigNodeCommand();
 
 	const nodename = `--nodename=${params.nodeName}`
-	const organization = `--organization=${params.organizationID}`
 	const storage = `--storage=${params.storagePath}`
 	const ram = `--ram=${params.memLimit}`
 	const swap = `--swap=${params.memSwapLimit}`
 	const shm = `--shm=${params.shmSize}`
 	const image = `--image=${params.image}`
 
-	const configNodeCommand = `${configNodeBaseCommand} ${nodename} ${organization} ${storage} ${ram} ${swap} ${shm} ${image}`
+	const configNodeCommand = `${configNodeBaseCommand} ${nodename} ${storage} ${ram} ${swap} ${shm} ${image}`
 	vscode.window.terminals.forEach((terminal) => {
 		terminal.dispose();
 	});

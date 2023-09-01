@@ -22,11 +22,6 @@
 			{
 				"title": "Coretex Configuration",
 				"properties": {
-					"OrganizationID": {
-						"type": "string",
-						"default": "",
-						"description": "Your Organization ID"
-					},
 					"Email": {
 						"type": "string",
 						"default": "",

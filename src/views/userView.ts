@@ -23,7 +23,6 @@ import { getNonce } from '../utilities/getNonce';
 export class UserView implements vscode.WebviewViewProvider {
 	viewId = 'coretex.user';
 	private _view?: vscode.WebviewView;
-    organizationConf = 'OrganizationID'
 
 	constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -72,10 +71,6 @@ export class UserView implements vscode.WebviewViewProvider {
 
 		if (fs.existsSync(configFilePath)) {
 			const configuration = JSON.parse(fs.readFileSync(configFilePath, { encoding: 'utf-8' }))
-
-			if (configuration.organizationID) {
-				vscode.workspace.getConfiguration().update(this.organizationConf, configuration.organizationID, vscode.ConfigurationTarget.Global);
-			}
 
 			this._view.webview.html = this.getWebviewContent(this._view.webview, configuration.username ? configuration.username : '');
 		} else {
@@ -126,9 +121,6 @@ export class UserView implements vscode.WebviewViewProvider {
 
 		// Use a nonce to only allow a specific script to be run.
 		const nonce = getNonce();
-        
-        const conf = vscode.workspace.getConfiguration();
-		const organizationID = conf.get<{}>(this.organizationConf);
 
 		const loginStyle = this.isCoretexCLIDetected() ? 'login-action button' : 'hidden'
 		const infoStyle = !this.isCoretexCLIDetected() ? 'info' : 'hidden'
@@ -145,10 +137,6 @@ export class UserView implements vscode.WebviewViewProvider {
 			</head>
 			<body>
                 <p class="subtitle">${username == '' ? 'Not logged in': username}</p>
-				<div class="column">
-                	<text class="info">Organization ID: </text>
-                	<text class="subtitle">${organizationID == '' ? '[Refresh after login]' : organizationID}</text>
-				</div>
 			    <button class="${loginStyle}">Log In</button>
 				<text class="${infoStyle}">Make sure you have latest CLI version installed.</text>
                 <script nonce="${nonce}" src="${scriptUri}"></script>
