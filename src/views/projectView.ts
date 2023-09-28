@@ -59,12 +59,12 @@ export class ProjectView implements vscode.WebviewViewProvider {
 		this._view.webview.html = this.getWebviewContent(this._view.webview, text);
 	}
 	
-	private getRunCommand(space: number, node: number, path: string): string {
+	private getRunCommand(project: number, node: number, path: string): string {
 		const platform = process.platform;
 		if (platform === 'darwin' || platform === 'linux') {
-			return `coretex run create ${node} -s ${space} -f ${path}`;
+			return `coretex run create ${node} -s ${project} -f ${path}`;
 		} else if (platform === 'win32') {
-			return `coretex.exe run create ${node} -s ${space} -f ${path}`;
+			return `coretex.exe run create ${node} -s ${project} -f ${path}`;
 		}
 
 		return '';
@@ -74,23 +74,23 @@ export class ProjectView implements vscode.WebviewViewProvider {
 		switch (data.type) {
 			case 'start':
 				{
-					const spaceConf = 'Space';
+					const projectConf = 'Project';
 					const nodeConf = 'NodeID';
 
 					const conf = vscode.workspace.getConfiguration();
-					const spaceID = conf.get<{}>(spaceConf);
-					const spaceDefaultValue = spaceID ? spaceID.toString() : '';
+					const projectID = conf.get<{}>(projectConf);
+					const projectDefaultValue = projectID ? projectID.toString() : '';
 
-					const space = await vscode.window.showInputBox({
-						prompt: 'Enter Space ID in which you wish to run the Job',
-						placeHolder: 'Space',
-						validateInput: (value) => (value ? null : 'Space is required'),
-						value: spaceDefaultValue, // Default value
+					const project = await vscode.window.showInputBox({
+						prompt: 'Enter Project ID in which you wish to run the Task',
+						placeHolder: 'Project',
+						validateInput: (value) => (value ? null : 'Project is required'),
+						value: projectDefaultValue, // Default value
 					});
 			
-					if (!space) {
+					if (!project) {
 						vscode.window.showErrorMessage(
-							'Space is required to run a Job.'
+							'Project is required to run a Task.'
 						);
 						return;
 					}
@@ -99,7 +99,7 @@ export class ProjectView implements vscode.WebviewViewProvider {
 					const nodeDefaultValue = nodeID ? nodeID.toString() : '';
 
 					const node = await vscode.window.showInputBox({
-						prompt: 'Enter Node ID on which you wish to run the Job',
+						prompt: 'Enter Node ID on which you wish to run the Task',
 						placeHolder: 'Node',
 						validateInput: (value) => (value ? null : 'Node is required'),
 						value: nodeDefaultValue, // Default value
@@ -107,7 +107,7 @@ export class ProjectView implements vscode.WebviewViewProvider {
 			
 					if (!node) {
 						vscode.window.showErrorMessage(
-							'Node is required to run a Job.'
+							'Node is required to run a Task.'
 						);
 						return;
 					}
@@ -118,7 +118,7 @@ export class ProjectView implements vscode.WebviewViewProvider {
 						currentWorkspacePath = vscode.workspace.workspaceFolders[0].uri.path;
 					}
 					
-					const command = this.getRunCommand(Number(space), Number(node), currentWorkspacePath);
+					const command = this.getRunCommand(Number(project), Number(node), currentWorkspacePath);
 
 					vscode.window.terminals.forEach((terminal) => {
 						terminal.dispose();
@@ -182,9 +182,9 @@ export class ProjectView implements vscode.WebviewViewProvider {
 				<title>Project</title>
 			</head>
 			<body>
-				<p>Run a Job with the current workspace contents:</p>
-				<button class="${runStyle}">Run Job</button>
-				<p>List nodes available for Job execution (set default in global extension settings):</p>
+				<p>Run a Task with the current workspace contents:</p>
+				<button class="${runStyle}">Run Task</button>
+				<p>List nodes available for Task execution (set default in global extension settings):</p>
 				<button class="${nodesStyle}">List Nodes</button>
 				<p class="title">Storage path:</p>
 				<p class="subtitle">${text}</p>

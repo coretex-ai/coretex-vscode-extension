@@ -90,7 +90,7 @@ const convertToCoretexProject = vscode.commands.registerCommand(
 					{ label: 'Other', value: 8 },
 				],
 				{
-					placeHolder: 'Select the project task:',
+					placeHolder: 'Select the project type:',
 				}
 			);
 
