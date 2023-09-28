@@ -37,10 +37,10 @@
 						"default": "",
 						"description": "Your Node Storage Path"
 					},
-					"Space": {
+					"Project": {
 						"type": "integer",
 						"default": 0,
-						"description": "Your Current Coretex Space"
+						"description": "Your Current Coretex Project"
 					},
 					"NodeID": {
 						"type": "integer",
